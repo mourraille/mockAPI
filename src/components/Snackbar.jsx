@@ -7,7 +7,7 @@ const Snackbar = ({ message, isOpen, onClose }) => {
         isOpen ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded shadow-lg">
+      <div className="bg-green-500 text-white text-sm font-medium px-4 py-2 rounded shadow-lg">
         {message}
         <button
           onClick={onClose}

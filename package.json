@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "ace-builds": "^1.36.5",
+    "cors": "^2.8.5",
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
     "prop-types": "^15.8.1",

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import AceEditor from 'react-ace';
+import Login from './components/Login.jsx';
 
 // Import ace editor themes and modes
 import 'ace-builds/src-noconflict/mode-json';
@@ -16,8 +17,14 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [jsonError, setJsonError] = useState(null);
   const [editorTheme, setEditorTheme] = useState('tomorrow_night');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Check authentication on load
+    const auth = localStorage.getItem('isAuthenticated') === 'true';
+    setIsAuthenticated(auth);
+    
+    // Check theme
     const isDark = localStorage.theme === 'light' ? false : true;
     setDarkMode(isDark);
     setEditorTheme(isDark ? 'tomorrow_night' : 'tomorrow');
@@ -26,6 +33,9 @@ function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Fetch endpoints
+    fetchEndpoints();
   }, []);
 
   const toggleDarkMode = () => {
@@ -125,13 +135,26 @@ function App() {
     validateJson(value);
   };
 
-  useEffect(() => {
-    fetchEndpoints();
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <Login onLogin={setIsAuthenticated} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <ThemeToggle darkMode={darkMode} onToggle={toggleDarkMode} />
+      
+      <button
+        onClick={handleLogout}
+        className="fixed top-4 left-4 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+      >
+        Logout
+      </button>
+
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">

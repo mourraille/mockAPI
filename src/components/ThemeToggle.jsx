@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 export default function ThemeToggle({ darkMode, onToggle }) {
   return (
@@ -39,3 +39,8 @@ export default function ThemeToggle({ darkMode, onToggle }) {
     </button>
   );
 }
+
+ThemeToggle.propTypes = {
+  darkMode: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired
+};

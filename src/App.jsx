@@ -302,7 +302,7 @@ function App() {
                           }}
                           className='text-xs px-3 py-1.5 bg-green-100 text-green-600 rounded-md hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 transition-colors duration-200'
                         >
-                          <span role="img" aria-label="copy">📋</span>
+                          <span role="img" aria-label="copy">🔗</span>
                         </button>
                       </div>
                     </div>

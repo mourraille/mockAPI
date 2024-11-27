@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: mock-api-creator-frontend
+    ports:
+      - "3020:3020"
+    networks:
+      - prod_network
+    environment:
+      - VITE_API_URL=http://your-domain.com:3021
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: mock-api-creator-backend
+    ports:
+      - "3021:3021"
+    networks:
+      - prod_network
+    environment:
+      - PORT=3021
+      - NODE_ENV=production
+
+networks:
+  prod_network:
+    external: true

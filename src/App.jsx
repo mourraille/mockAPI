@@ -53,7 +53,7 @@ function App() {
 
   const fetchEndpoints = async () => {
     try {
-      const response = await fetch('http://localhost:3001/endpoints');
+      const response = await fetch('http://localhost:3021/endpoints');
       const data = await response.json();
       setEndpoints(data);
     } catch (error) {
@@ -67,8 +67,8 @@ function App() {
       const parsedResponse = JSON.parse(mockResponse);
       
       const url = editingId 
-        ? `http://localhost:3001/update-mock/${editingId}`
-        : 'http://localhost:3001/create-mock';
+        ? `http://localhost:3021/update-mock/${editingId}`
+        : 'http://localhost:3021/create-mock';
       
       const response = await fetch(url, {
         method: editingId ? 'PUT' : 'POST',
@@ -104,7 +104,7 @@ function App() {
     if (!confirm('Are you sure you want to delete this endpoint?')) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/delete-mock/${id}`, {
+      const response = await fetch(`http://localhost:3021/delete-mock/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -239,7 +239,7 @@ function App() {
                   <div className="p-4 flex items-center justify-between">
                     <div className="flex-1">
                       <a 
-                        href={`http://localhost:3001${endpoint.path}`}
+                        href={`http://localhost:3021${endpoint.path}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer"

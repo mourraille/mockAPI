@@ -10,7 +10,7 @@ import "ace-builds/src-noconflict/theme-tomorrow_night";
 import "ace-builds/src-noconflict/ext-language_tools";
 
 const DEV_API_URL = "http://localhost:3021"; // Define the DEV_API_URL
-const PROD_API_URL = "https://api.mourraille.com"; // Define the PROD_API_URL
+const PROD_API_URL = "https://apimock.mourraille.com"; // Define the PROD_API_URL
 
 function App() {
   const [apiPath, setApiPath] = useState("");

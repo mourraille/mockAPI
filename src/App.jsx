@@ -102,7 +102,9 @@ function App() {
         throw new Error(errorData.error || "Server error");
       }
 
-      showSnackbar(editingId ? "Mock endpoint updated!" : "Mock endpoint created!");
+      showSnackbar(
+        editingId ? "Mock endpoint updated!" : "Mock endpoint created!"
+      );
       setApiPath("");
       setMockResponse("");
       setEditingId(null);
@@ -161,21 +163,25 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return <Login onLogin={setIsAuthenticated} />;
+    //return <Login onLogin={setIsAuthenticated} />;
   }
 
   return (
     <>
-      <Snackbar message={snackbarMessage} isOpen={isSnackbarOpen} onClose={() => setIsSnackbarOpen(false)} />
+      <Snackbar
+        message={snackbarMessage}
+        isOpen={isSnackbarOpen}
+        onClose={() => setIsSnackbarOpen(false)}
+      />
       <div className='min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8'>
         <ThemeToggle darkMode={darkMode} onToggle={toggleDarkMode} />
 
-        <button
+        {/* <button
           onClick={handleLogout}
           className='fixed top-4 left-4 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200'
         >
           Logout
-        </button>
+        </button> */}
 
         <div className='max-w-4xl mx-auto'>
           <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6'>
@@ -297,12 +303,16 @@ function App() {
                         </button>
                         <button
                           onClick={() => {
-                            navigator.clipboard.writeText(`${apiRoot}${endpoint.path}`);
+                            navigator.clipboard.writeText(
+                              `${apiRoot}${endpoint.path}`
+                            );
                             showSnackbar("Endpoint URL copied to clipboard!");
                           }}
                           className='text-xs px-3 py-1.5 bg-green-100 text-green-600 rounded-md hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 transition-colors duration-200'
                         >
-                          <span role="img" aria-label="copy">🔗</span>
+                          <span role='img' aria-label='copy'>
+                            🔗
+                          </span>
                         </button>
                       </div>
                     </div>

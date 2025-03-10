@@ -1,24 +1,25 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import { createClient } from "@libsql/client";
+import dotenv from "dotenv";
+import process from "process";
 
-const db = new sqlite3.Database(path.join(__dirname, 'mockapi.db'), (err) => {
-  if (err) {
-    console.error('Error connecting to database:', err);
-  } else {
-    console.log('Connected to SQLite database');
-  }
+// Load environment variables from server directory
+dotenv.config();
+
+// Check for required environment variables
+if (!process.env.TURSO_DATABASE_URL) {
+  console.error("ERROR: TURSO_DATABASE_URL is not defined in your .env file");
+  process.exit(1);
+}
+
+if (!process.env.TURSO_AUTH_TOKEN) {
+  console.error("ERROR: TURSO_AUTH_TOKEN is not defined in your .env file");
+  process.exit(1);
+}
+
+// Create and export the Turso client
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// Create tables if they don't exist
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS endpoints (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      path TEXT NOT NULL,
-      response TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-});
-
-module.exports = db; 
+export default db;

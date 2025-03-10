@@ -1,133 +1,83 @@
-const express = require("express");
-const cors = require("cors");
-const db = require("./db");
-const app = express();
-const rateLimit = require("express-rate-limit");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import endpointRoutes from "./routes/endpoints.js";
+import dynamicEndpoints from "./routes/dynamicEndpoints.js";
+import db from "./db.js";
+import process from "process";
 
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3021;
+
+// Initialize database schema
+async function initializeDatabase() {
+  try {
+    // Read schema file
+    const schemaPath = path.join(__dirname, "schema.sql");
+    const schema = await fs.readFile(schemaPath, "utf8");
+
+    // Split schema into individual statements
+    const statements = schema
+      .split(";")
+      .map((statement) => statement.trim())
+      .filter((statement) => statement.length > 0);
+
+    // Execute each statement
+    for (const statement of statements) {
+      await db.execute(statement + ";");
+    }
+
+    console.log("Database schema initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize database schema:", error);
+    process.exit(1);
+  }
+}
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Create limiter before your routes
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per window
-  message: "Too many requests, please try again later.",
-});
-
-// Apply the rate limiting middleware to all routes
-app.use(limiter);
-
-// Get all endpoints
-app.get("/endpoints", (req, res) => {
-  db.all("SELECT * FROM endpoints", [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    const endpoints = rows.map((row) => ({
-      id: row.id,
-      path: row.path,
-      response: JSON.parse(row.response),
-    }));
-    res.json(endpoints);
-  });
-});
-
-// Create new mock endpoint
-app.post("/create-mock", (req, res) => {
-  const { apiPath, mockResponse } = req.body;
-
-  if (!apiPath) {
-    return res.status(400).json({ error: "API path is required" });
-  }
-
+// Check database connection
+app.use(async (req, res, next) => {
   try {
-    // Ensure mockResponse can be stringified
-    const responseStr = JSON.stringify(mockResponse);
+    // Simple query to test the connection
+    await db.execute("SELECT 1");
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
 
-    const stmt = db.prepare(
-      "INSERT INTO endpoints (path, response) VALUES (?, ?)"
-    );
-    stmt.run(apiPath, responseStr, function (err) {
-      if (err) {
-        console.error("Database error:", err);
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.status(200).json({
-        message: "Mock endpoint created successfully",
-        id: this.lastID,
-      });
+// API routes
+app.use("/", endpointRoutes);
+
+// Dynamic endpoint handler should be registered last
+app.use("/", dynamicEndpoints);
+
+// Start the server
+async function startServer() {
+  try {
+    await initializeDatabase();
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Processing error:", error);
-    res.status(400).json({ error: error.message });
+    console.error("Failed to start server:", error);
+    process.exit(1);
   }
-});
+}
 
-// Update existing mock endpoint
-app.put("/update-mock/:id", (req, res) => {
-  const { apiPath, mockResponse } = req.body;
-  const { id } = req.params;
-
-  if (!apiPath) {
-    return res.status(400).json({ error: "API path is required" });
-  }
-
-  const stmt = db.prepare(
-    "UPDATE endpoints SET path = ?, response = ? WHERE id = ?"
-  );
-  stmt.run(apiPath, JSON.stringify(mockResponse), id, function (err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
-      res.status(404).json({ error: "Endpoint not found" });
-      return;
-    }
-    res.status(200).json({ message: "Mock endpoint updated successfully" });
-  });
-});
-
-// Delete mock endpoint
-app.delete("/delete-mock/:id", (req, res) => {
-  const { id } = req.params;
-
-  const stmt = db.prepare("DELETE FROM endpoints WHERE id = ?");
-  stmt.run(id, function (err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
-      res.status(404).json({ error: "Endpoint not found" });
-      return;
-    }
-    res.status(200).json({ message: "Endpoint deleted successfully" });
-  });
-});
-
-// Dynamic handler for all GET requests to mock endpoints
-app.get("*", (req, res) => {
-  const path = req.path;
-  db.get(
-    "SELECT response FROM endpoints WHERE path = ?",
-    [path],
-    (err, row) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      if (row) {
-        return res.json(JSON.parse(row.response));
-      }
-      res.status(404).json({ error: "Mock endpoint not found" });
-    }
-  );
-});
-
-const PORT = process.env.PORT || 3021;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+startServer();

@@ -6,21 +6,23 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "node server/index.js",
+    "server": "cd server && node index.js",
+    "start": "concurrently \"npm run dev\" \"npm run server\"",
+    "start:prod": "node server/index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@libsql/client": "^0.14.0",
     "ace-builds": "^1.36.5",
     "cors": "^2.8.5",
-    "sqlite3": "^5.1.6",
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-ace": "^13.0.0",
-    "react-dom": "^18.3.1"
-    
+    "react-dom": "^18.3.1",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -28,6 +30,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
     "eslint": "^9.15.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",

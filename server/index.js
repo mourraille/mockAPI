@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import endpointRoutes from "./routes/endpoints.js";
 import dynamicEndpoints from "./routes/dynamicEndpoints.js";
+import userRoutes from "./routes/users.js";
 import db from "./db.js";
 import process from "process";
 
@@ -62,6 +63,7 @@ app.use(async (req, res, next) => {
 
 // API routes
 app.use("/", endpointRoutes);
+app.use("/", userRoutes);
 
 // Dynamic endpoint handler should be registered last
 app.use("/", dynamicEndpoints);

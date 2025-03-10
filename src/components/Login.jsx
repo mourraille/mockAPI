@@ -38,10 +38,10 @@ const Login = () => {
       <div className='max-w-md w-full space-y-8'>
         <div>
           <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white'>
-            Mockingjay
+            MockingJays
           </h2>
           <p className='mt-2 text-center text-sm text-gray-600 dark:text-gray-400'>
-            Sign in to access your mock APIs
+            Sign in to mock API endpoints
           </p>
         </div>
 
@@ -101,6 +101,12 @@ const Login = () => {
             </svg>
             Sign in with Apple
           </button> */}
+
+          {loading && (
+            <div className='flex justify-center my-4'>
+              <div className='animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500'></div>
+            </div>
+          )}
         </div>
       </div>
     </div>

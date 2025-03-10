@@ -3,6 +3,7 @@ import ThemeToggle from "./components/ThemeToggle.jsx";
 import AceEditor from "react-ace";
 import Snackbar from "./components/Snackbar";
 import Login from "./components/Login.jsx";
+import Footer from "./components/Footer.jsx";
 import { useAuth } from "./context/AuthContext";
 
 // Import ace editor themes and modes
@@ -21,6 +22,7 @@ function App() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [activeTab, setActiveTab] = useState("json"); // "json" or "ai"
   const [endpoints, setEndpoints] = useState([]);
+  const [endpointsLoading, setEndpointsLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [jsonError, setJsonError] = useState(null);
@@ -33,11 +35,14 @@ function App() {
 
   const fetchEndpoints = useCallback(async () => {
     try {
+      setEndpointsLoading(true);
       const response = await fetch(apiRoot + "/endpoints");
       const data = await response.json();
       setEndpoints(data);
     } catch (error) {
       console.error("Error fetching endpoints:", error);
+    } finally {
+      setEndpointsLoading(false);
     }
   }, [apiRoot]);
 
@@ -189,7 +194,12 @@ function App() {
 
   // If not authenticated, show the login page
   if (!currentUser) {
-    return <Login />;
+    return (
+      <>
+        <Login />
+        <Footer />
+      </>
+    );
   }
 
   return (
@@ -347,71 +357,62 @@ function App() {
               <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-4'>
                 Existing Endpoints
               </h3>
-              <div className='space-y-3'>
-                {endpoints.map((endpoint) => (
-                  <div
-                    key={endpoint.id}
-                    className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200'
-                  >
-                    <div className='p-4 flex items-center justify-between'>
-                      <div className='flex-1'>
-                        <a
-                          href={`${apiRoot}${endpoint.path}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer'
-                        >
-                          {endpoint.path}
-                        </a>
-                        <div className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-                          {JSON.stringify(endpoint.response).slice(0, 100)}...
+
+              {endpointsLoading ? (
+                <div className='flex justify-center my-12'>
+                  <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500'></div>
+                </div>
+              ) : (
+                <div className='space-y-3'>
+                  {endpoints.map((endpoint) => (
+                    <div
+                      key={endpoint.id}
+                      className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200'
+                    >
+                      <div className='p-4 flex items-center justify-between'>
+                        <div className='flex-1'>
+                          <a
+                            href={`${apiRoot}${endpoint.path}`}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer'
+                          >
+                            {endpoint.path}
+                          </a>
+                          <div className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
+                            {JSON.stringify(endpoint.response).slice(0, 100)}...
+                          </div>
+                        </div>
+                        <div className='flex space-x-2 ml-4'>
+                          <button
+                            onClick={() => handleEdit(endpoint)}
+                            className='text-xs px-3 py-1.5 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors duration-200'
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(endpoint.id)}
+                            className='text-xs px-3 py-1.5 bg-red-100 text-red-600 rounded-md hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200'
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
-                      <div className='flex space-x-2 ml-4'>
-                        <button
-                          onClick={() => handleEdit(endpoint)}
-                          className='text-xs px-3 py-1.5 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors duration-200'
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(endpoint.id)}
-                          className='text-xs px-3 py-1.5 bg-red-100 text-red-600 rounded-md hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200'
-                        >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(
-                              `${apiRoot}${endpoint.path}`
-                            );
-                            showSnackbar("Endpoint URL copied to clipboard!");
-                          }}
-                          className='text-xs px-3 py-1.5 bg-green-100 text-green-600 rounded-md hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 transition-colors duration-200'
-                        >
-                          <span role='img' aria-label='copy'>
-                            🔗
-                          </span>
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+
+                  {!endpointsLoading && endpoints.length === 0 && (
+                    <div className='text-center py-8 text-gray-500 dark:text-gray-400'>
+                      No endpoints created yet. Create your first one above!
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <footer className='bg-gray-100 dark:bg-gray-900 text-center py-4'>
-        <a
-          href='https://mourraille.com'
-          className='text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 inline-block w-full h-full py-2'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          © Mourraille {new Date().getFullYear()}
-        </a>
-      </footer>
+      <Footer />
     </>
   );
 }

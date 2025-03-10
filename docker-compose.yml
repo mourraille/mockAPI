@@ -29,6 +29,8 @@ services:
       - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
     env_file:
       - server/.env
+    volumes:
+      - ./server/.env:/app/server/.env:ro
 
 networks:
   prod_network:
